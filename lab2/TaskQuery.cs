@@ -9,10 +9,12 @@ namespace Lab2 {
         {
             var mode = GetDeserializationMode();
             var path = Path.Combine(DataPath, "ClientTour.xml");
+            using var sr1 = new StreamReader(path);
+
             var ClientTour = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<ClientTour>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<ClientTour>)!
+                    .Deserialize(sr1) as IEnumerable<ClientTour>)!
                     .Select(ct => new
                     {
                         Guide = ct.Tour.Route.Guide.Id,
@@ -20,7 +22,7 @@ namespace Lab2 {
                         Client = ct.Client.Id
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr1)
                     .Descendants("ClientTour")
                     .Select(ct => new
                     {
@@ -30,18 +32,21 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
+
             path = Path.Combine(DataPath, "GuideRating.xml");
+            using var sr2 = new StreamReader(path);
+
             var GuideRating = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<GuideRating>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<GuideRating>)!
+                    .Deserialize(sr2) as IEnumerable<GuideRating>)!
                     .Select(gr => new
                     {
                         Guide = gr.Guide.Id,
                         gr.Rating
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr2)
                     .Descendants("GuideRating")
                     .Select(gr => new
                     {
@@ -50,13 +55,12 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
-            path = Path.Combine(DataPath, "Client.xml");
-            var Client = XDocument.Load(path).Descendants("Client");
+
             var tq = from ct in ClientTour
                      join gr in GuideRating on ct.Guide equals gr.Guide
                      group new { ct.Client, gr.Rating } by gr.Guide into GuideGroup
                      let gc = GuideGroup.Select(gg => gg.Client).Distinct().Count()
-                     let tc = (decimal)Client.Count()
+                     let tc = (decimal)ClientTour.DistinctBy(ct => ct.Client).Count()
                      let rs = ClientTour.Where(ct => ct.Guide == GuideGroup.Key).DistinctBy(ct => ct.Route).OrderBy(ct => ct.Route)
                      let cr = Math.Round(gc / tc, 2)
                      let ar = Math.Round(GuideGroup.Average(gg => gg.Rating), 2)
@@ -67,6 +71,7 @@ namespace Lab2 {
                          ChoiceRatio = cr,
                          AverageRating = $"{Math.Round(ar, 2)} / 5"
                      };
+
             ShowQuery("Task Query 1", tq, new Dictionary<string, string>
             {
                 { "Route", "Маршрути" },
@@ -78,17 +83,19 @@ namespace Lab2 {
         {
             var mode = GetDeserializationMode();
             var path = Path.Combine(DataPath, "HotelRoute.xml");
+            using var sr1 = new StreamReader(path);
+
             var HotelRoute = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<HotelRoute>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<HotelRoute>)!
+                    .Deserialize(sr1) as IEnumerable<HotelRoute>)!
                     .Select(hr => new
                     {
                         Hotel = hr.Hotel.Id,
                         Route = hr.Route.Id,
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr1)
                     .Descendants("HotelRoute")
                     .Select(hr => new
                     {
@@ -97,18 +104,22 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
+
             path = Path.Combine(DataPath, "Tour.xml");
+            using var sr2 = new StreamReader(path);
+
             var Tour = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<Tour>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<Tour>)!
+                    .Deserialize(sr2) as IEnumerable<Tour>)!
                     .Select(t => t.Route.Id),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr2)
                     .Descendants("Tour")
                     .Select(t => (int)t.Element("Route")!.Element("Id")!),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
+
             var tq = (from hr in HotelRoute
                       join t in Tour on hr.Route equals t
                       group t by hr.Hotel into HotelVisit
@@ -119,6 +130,7 @@ namespace Lab2 {
                           Hotel = HotelVisit.Key,
                           TotalVisit = v
                       }).First();
+
             ShowQuery("Task Query 2", [tq], new Dictionary<string, string>
             {
                 { "Hotel", "Готель" },
@@ -128,17 +140,19 @@ namespace Lab2 {
         public void TaskQuery_3() {
             var mode = GetDeserializationMode();
             var path = Path.Combine(DataPath, "Tour.xml");
+            using var sr1 = new StreamReader(path);
+
             var Tour = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<Tour>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<Tour>)!
+                    .Deserialize(sr1) as IEnumerable<Tour>)!
                     .Select(t => new
                     {
                         Tour = t.Id,
                         Guide = t.Route.Guide.Id
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr1)
                     .Descendants("Tour")
                     .Select(t => new
                     {
@@ -147,18 +161,21 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encoutnered")
             };
+
             path = Path.Combine(DataPath, "GuideRating.xml");
+            using var sr2 = new StreamReader(path);
+
             var GuideRating = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<GuideRating>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<GuideRating> as IEnumerable<GuideRating>)!
+                    .Deserialize(sr2) as IEnumerable<GuideRating>)!
                     .Select(gr => new
                     {
                         Guide = gr.Guide.Id,
                         gr.Rating
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr2)
                     .Descendants("GuideRating")
                     .Select(gr => new
                     {
@@ -167,6 +184,7 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encoutnered")
             };
+
             var tq = from t in Tour
                      join gr in GuideRating on t.Guide equals gr.Guide
                      group new { t.Tour, gr.Rating } by gr.Guide into GuideGroup
@@ -180,6 +198,7 @@ namespace Lab2 {
                          TotalTour = gt,
                          AverageRating = $"{Math.Round(ar, 2)} / 5"
                      };
+
             ShowQuery("Task Query 3", tq, new Dictionary<string, string>
             {
                 { "Guide", "Гід" },
@@ -190,17 +209,19 @@ namespace Lab2 {
         public void TaskQuery_4() {
             var mode = GetDeserializationMode();
             var path = Path.Combine(DataPath, "HotelRating.xml");
+            using var sr1 = new StreamReader(path);
+
             var HotelRating = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<HotelRating>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<HotelRating>)!
+                    .Deserialize(sr1) as IEnumerable<HotelRating>)!
                     .Select(hr => new
                     {
                         Hotel = hr.Hotel.Id,
                         hr.Rating
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr1)
                     .Descendants("HotelRating")
                     .Select(hr => new
                     {
@@ -209,11 +230,14 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
+
             path = Path.Combine(DataPath, "HotelRoute.xml");
+            using var sr2 = new StreamReader(path);
+
             var HotelRoute = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<HotelRoute>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<HotelRoute>)!
+                    .Deserialize(sr2) as IEnumerable<HotelRoute>)!
                     .Select(hr => new
                     {
                         Hotel = hr.Hotel.Id,
@@ -221,7 +245,7 @@ namespace Lab2 {
                         hr.Route.Duration
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr2)
                     .Descendants("HotelRoute")
                     .Select(hr => new
                     {
@@ -231,18 +255,21 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
+
             path = Path.Combine(DataPath, "ClientTour.xml");
+            using var sr3 = new StreamReader(path);
+
             var ClientTour = mode switch
             {
                 1 => (new XmlSerializer(typeof(List<ClientTour>))
-                    .Deserialize(new StreamReader(path)) as IEnumerable<ClientTour>)!
+                    .Deserialize(sr3) as IEnumerable<ClientTour>)!
                     .Select(ct => new
                     {
                         Client = ct.Client.Id,
                         Route = ct.Tour.Route.Id
                     }),
                 2 => XDocument
-                    .Load(path)
+                    .Load(sr3)
                     .Descendants("ClientTour")
                     .Select(ct => new
                     {
@@ -251,6 +278,7 @@ namespace Lab2 {
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
+
             var tq = (from ct in ClientTour
                       join hro in HotelRoute on ct.Route equals hro.Route
                       join hra in HotelRating on hro.Hotel equals hra.Hotel
@@ -266,6 +294,7 @@ namespace Lab2 {
                           TotalClient = rc,
                           AverageRating = $"{Math.Round(ar, 2)} / 5"
                       }).Take(3);
+
             ShowQuery("Task Query 4", tq, new Dictionary<string, string>
             {
                 { "Route", "Маршрут" },
