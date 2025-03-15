@@ -1,0 +1,1 @@
+<b>Lab1/QueryProcessor.cs component is required for using Lab2<b>
