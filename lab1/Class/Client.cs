@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class Client(int p_id, Person p_person) {
-        public int Id { get; private set; } = p_id;
-        public Person Person { get; private set; } = p_person;
+﻿namespace Lab1.Class {
+    public class Client {
+        public int Id { get; set; }
+        public Person Person { get; set; } = new();
+        public Client() { }
+        public Client(int p_id, Person p_person)
+        {
+            Id = p_id;
+            Person = p_person;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is Client c &&

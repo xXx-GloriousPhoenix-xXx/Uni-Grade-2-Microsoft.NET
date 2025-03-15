@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class ClientTour (int p_id, Client p_client, Tour p_tour)
+﻿namespace Lab1.Class {
+    public class ClientTour
     {
-        public int Id { get; private set; } = p_id;
-        public Client Client { get; private set; } = p_client;
-        public Tour Tour { get; private set; } = p_tour;
+        public int Id { get; set; }
+        public Client Client { get; set; } = new();
+        public Tour Tour { get; set; } = new();
+        public ClientTour() { }
+        public ClientTour(int p_id, Client p_client, Tour p_tour) {
+            Id = p_id;
+            Client = p_client;
+            Tour = p_tour;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is ClientTour ct &&

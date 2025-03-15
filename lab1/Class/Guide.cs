@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class Guide(int p_id, Person p_person, int p_experience) {
-        public int Id { get; private set; } = p_id;
-        public Person Person { get; private set; } = p_person;
-        public int Experience { get; private set; } = p_experience;
+﻿namespace Lab1.Class {
+    public class Guide {
+        public int Id { get; set; }
+        public Person Person { get; set; } = new();
+        public int Experience { get; set; }
+        public Guide() { }
+        public Guide(int p_id, Person p_person, int p_experience) {
+            Id = p_id;
+            Person = p_person;
+            Experience = p_experience;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is Guide g &&

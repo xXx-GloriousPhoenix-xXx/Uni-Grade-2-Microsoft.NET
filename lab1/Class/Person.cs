@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class Person(int p_id, string p_surname, string p_name)
+﻿namespace Lab1.Class
+{
+    public class Person
     {
-        public int Id { get; private set; } = p_id;
-        public string Surname { get; private set; } = p_surname;
-        public string Name { get; private set; } = p_name;
+        public int Id { get; set; }
+        public string Surname { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string FullName() => $"{Surname} {Name}";
+        public Person() { }
+        public Person(int p_id, string p_surname, string p_name)
+        {
+            Id = p_id;
+            Surname = p_surname;
+            Name = p_name;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is Person p &&

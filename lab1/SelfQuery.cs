@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1 {
+﻿namespace Lab1 {
     public partial class LINQToObjectsQuery 
     {
         /// <summary>
@@ -20,13 +14,13 @@ namespace Lab1 {
                       {
                           Guide = GuideClientGroup.Key.Id,
                           AgeExperience = GuideClientGroup.Key.Experience,
-                          ClientExperience = gc
+                          TotalClient = gc
                       }).Take(3);
             ShowQuery("Self Query 1", sq, new Dictionary<string, string>
             {
                 { "Guide", "Гід" },
                 { "AgeExperience", "Стаж" },
-                { "ClientExperience", "Кількість клієнтів" }
+                { "TotalClient", "Кількість клієнтів" }
             });
         }
         /// <summary>

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class Tour (int p_id, Route p_route) 
+﻿namespace Lab1.Class {
+    public class Tour 
     {
-        public int Id { get; private set; } = p_id;
-        public Route Route { get; private set; } = p_route;
+        public int Id { get; set; }
+        public Route Route { get; set; } = new();
+        public Tour() { }
+        public Tour(int p_id, Route p_route) {
+            Id = p_id;
+            Route = p_route;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is Tour t &&

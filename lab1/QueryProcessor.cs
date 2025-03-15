@@ -1,30 +1,45 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
 
 namespace Lab1
 {
     public abstract class QueryProcessor {
+        public static string ElapsedTimeProcessor(Stopwatch w) {
+            var t = w.Elapsed;
+            if (t.TotalNanoseconds < 2000) return $"{Math.Round(t.TotalNanoseconds)} нс";
+            if (t.TotalMicroseconds < 2000) return $"{Math.Round(t.TotalMicroseconds)} мкс";
+            if (t.TotalMilliseconds < 2000) return $"{Math.Round(t.TotalMilliseconds)} мс";
+            else return $"{Math.Round(t.TotalSeconds, 3)} с";
+        }
         public static void ShowQuery<T>(string title, IEnumerable<T> query, Dictionary<string, string> field_name) {
+            var w = new Stopwatch();
+            w.Start();
+
             Console.WriteLine($"———————{title}:———————");
-            var last_item = query.LastOrDefault();
-            if (last_item is null)
+            var list = query.ToList();
+            if (list.Count == 0)
             {
                 Console.WriteLine("Результатів не знайдено");
             }
             else
             {
-                foreach (var item in query)
+                foreach (var item in list)
                 {
                     foreach (var prop in item!.GetType().GetProperties())
                     {
                         string name = field_name[prop.Name];
                         Console.WriteLine($"{name}: {prop.GetValue(item)}");
                     }
-                    if (!item.Equals(last_item))
+                    if (!item.Equals(list.Last()))
                     {
                         Console.WriteLine();
                     }
                 }
             }
+            Console.WriteLine("———————————————————————————");
+
+            w.Stop();
+
+            Console.WriteLine("Часу витрачено: {0}", ElapsedTimeProcessor(w));
             Console.WriteLine("———————————————————————————\n");
         }
         public void CallMethod() {

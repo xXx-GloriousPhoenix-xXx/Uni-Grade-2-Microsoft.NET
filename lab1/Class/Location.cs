@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class Location (int p_id, string p_city, string p_address) 
+﻿namespace Lab1.Class {
+    public class Location
     {
-        public int Id { get; private set; } = p_id;
-        public string City { get; private set; } = p_city;
-        public string Address { get; private set; } = p_address;
+        public int Id { get; set; }
+        public string City { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public Location() { }
+        public Location(int p_id, string p_city, string p_address) {
+            Id = p_id;
+            City = p_city;
+            Address = p_address;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is Location l &&

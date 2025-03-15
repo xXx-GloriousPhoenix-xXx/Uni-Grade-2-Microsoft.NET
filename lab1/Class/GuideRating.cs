@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class GuideRating (int p_id, Client p_client, Guide p_guide, decimal p_rating) 
+﻿namespace Lab1.Class {
+    public class GuideRating
     {
-        public int Id { get; private set; } = p_id;
-        public Client Client { get; private set; } = p_client;
-        public Guide Guide { get; private set; } = p_guide;
-        public decimal Rating { get; private set; } = p_rating;
+        public int Id { get; set; }
+        public Client Client { get; set; } = new();
+        public Guide Guide { get; set; } = new();
+        public decimal Rating { get; set; }
+        public GuideRating() { }
+        public GuideRating(int p_id, Client p_client, Guide p_guide, decimal p_rating) {
+            Id = p_id;
+            Client = p_client;
+            Guide = p_guide;
+            Rating = p_rating;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is GuideRating gr &&

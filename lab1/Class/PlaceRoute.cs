@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class PlaceRoute (int p_id, Route p_route, Place p_place)
+﻿namespace Lab1.Class {
+    public class PlaceRoute
     {
-        public int Id { get; private set; } = p_id;
-        public Route Route { get; private set; } = p_route;
-        public Place Place { get; private set; } = p_place;
+        public int Id { get; set; }
+        public Route Route { get; set; } = new();
+        public Place Place { get; set; } = new();
+        public PlaceRoute() { }
+        public PlaceRoute(int p_id, Route p_route, Place p_place) {
+            Id = p_id;
+            Route = p_route;
+            Place = p_place;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is PlaceRoute pt &&

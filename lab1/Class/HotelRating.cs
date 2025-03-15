@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1.Class {
-    public class HotelRating (int p_id, Hotel p_hotel, Client p_client, decimal p_rating)
+﻿namespace Lab1.Class {
+    public class HotelRating 
     {
-        public int Id { get; private set; } = p_id;
-        public Hotel Hotel { get; private set; } = p_hotel;
-        public Client Client { get; private set; } = p_client;
-        public decimal Rating { get; private set; } = p_rating;
+        public int Id { get; set; }
+        public Hotel Hotel { get; set; } = new();
+        public Client Client { get; set; } = new();
+        public decimal Rating { get; set; }
+        public HotelRating() { }
+        public HotelRating(int p_id, Hotel p_hotel, Client p_client, decimal p_rating) {
+            Id = p_id;
+            Hotel = p_hotel;
+            Client = p_client;
+            Rating = p_rating;
+        }
         public override bool Equals(object? obj) =>
             obj is not null &&
             obj is HotelRating hr &&
