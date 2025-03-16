@@ -66,11 +66,13 @@ namespace Lab1 {
             var hotel_weight = new decimal[] { 1, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
             var guide_weight = new decimal[] { 1, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
             
+            var cfg = new Config(client, guide, route, hotel_weight, guide_weight);
+            var qgen = new LINQToObjectsQuery(cfg);
+
             while (true)
             {
-                var cfg = new Config(client, guide, route, hotel_weight, guide_weight);
-                var qgen = new LINQToObjectsQuery(cfg);
-                qgen.CallMethod();
+                var result = qgen.CallMethod();
+                if (result) break;
             }
         }        
     }

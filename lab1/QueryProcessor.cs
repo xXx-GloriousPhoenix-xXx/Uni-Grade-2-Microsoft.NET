@@ -42,8 +42,8 @@ namespace Lab1
             Console.WriteLine("Часу витрачено: {0}", ElapsedTimeProcessor(w));
             Console.WriteLine("———————————————————————————\n");
         }
-        public void CallMethod() {
-            Console.WriteLine("Input type of method (Self/Task):");
+        public bool CallMethod() {
+            Console.WriteLine("Введіть тип черги (Self/Task) або Quit");
             var method_type = Console.ReadLine();
             Console.Clear();
 
@@ -55,18 +55,22 @@ namespace Lab1
 
             if (method_type is null || !method_dictionary.TryGetValue(method_type!, out List<int>? dictionary_value))
             {
+                if (method_type is not null && method_type == "Quit")
+                {
+                    return true;
+                }
                 CallMethod();
-                return;
+                return false;
             }
 
-            Console.WriteLine("Enter the number of method ({0})", string.Join("-", dictionary_value));
+            Console.WriteLine("Введіть номер черги ({0})", string.Join("-", dictionary_value));
             var method_number = Console.ReadLine();
             Console.Clear();
 
             if (string.IsNullOrWhiteSpace(method_number) || !int.TryParse(method_number, out int value) || value < dictionary_value.Min() || value > dictionary_value.Max())
             {
                 CallMethod();
-                return;
+                return false;
             }
 
             var method_name = $"{method_type}Query_{value}";
@@ -74,9 +78,10 @@ namespace Lab1
             if (method is null)
             {
                 CallMethod();
-                return;
+                return false;
             }
             method.Invoke(this, null);
+            return false;
         }
     }
 }

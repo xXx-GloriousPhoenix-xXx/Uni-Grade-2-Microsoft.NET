@@ -1,64 +1,72 @@
-﻿using System.Xml.Linq;
-using System.Xml.Serialization;
-using Lab1.Class;
+﻿using Lab1.Class;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
-namespace Lab2 {
-    public partial class LINQToXMLQuery 
+namespace Lab3
+{
+    public partial class LINQToJSONQuery
     {
         public void TaskQuery_1()
         {
             var mode = GetDeserializationMode();
-            var path = Path.Combine(DataPath, "ClientTour.xml");
+            var path = Path.Combine(DataPath, "ClientTour.json");
             using var sr1 = new StreamReader(path);
 
             var ClientTour = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<ClientTour>))
-                    .Deserialize(sr1) as IEnumerable<ClientTour>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<ClientTour>>(sr1.ReadToEnd())!
                     .Select(ct => new
                     {
                         Guide = ct.Tour.Route.Guide.Id,
                         Route = ct.Tour.Route.Id,
                         Client = ct.Client.Id
                     }),
-                2 => XDocument
-                    .Load(sr1)
-                    .Descendants("ClientTour")
+                2 => JsonDocument.Parse(sr1.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(ct => new
                     {
-                        Guide = (int)ct.Element("Tour")!.Element("Route")!.Element("Guide")!.Element("Id")!,
-                        Route = (int)ct.Element("Tour")!.Element("Route")!.Element("Id")!,
-                        Client = (int)ct.Element("Client")!.Element("Id")!
+                        Guide = ct.GetProperty("Tour").GetProperty("Route").GetProperty("Guide").GetProperty("Id").GetInt32(),
+                        Route = ct.GetProperty("Tour").GetProperty("Route").GetProperty("Id").GetInt32(),
+                        Client = ct.GetProperty("Client").GetProperty("Id").GetInt32()
+                    }),
+                3 => JsonNode.Parse(sr1.ReadToEnd())!.AsArray()
+                    .Select(ct => new
+                    {
+                        Guide = (int)ct!["Tour"]!["Route"]!["Guide"]!["Id"]!,
+                        Route = (int)ct!["Tour"]!["Route"]!["Id"]!,
+                        Client = (int)ct!["Client"]!["Id"]!
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
 
-            path = Path.Combine(DataPath, "GuideRating.xml");
+            path = Path.Combine(DataPath, "GuideRating.json");
             using var sr2 = new StreamReader(path);
 
             var GuideRating = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<GuideRating>))
-                    .Deserialize(sr2) as IEnumerable<GuideRating>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<GuideRating>>(sr2.ReadToEnd())!
                     .Select(gr => new
                     {
                         Guide = gr.Guide.Id,
                         gr.Rating
                     }),
-                2 => XDocument
-                    .Load(sr2)
-                    .Descendants("GuideRating")
+                2 => JsonDocument.Parse(sr2.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(gr => new
                     {
-                        Guide = (int)gr.Element("Guide")!.Element("Id")!,
-                        Rating = (decimal)gr.Element("Rating")!
+                        Guide = gr.GetProperty("Guide").GetProperty("Id").GetInt32(),
+                        Rating = gr.GetProperty("Rating").GetDecimal()
+                    }),
+                3 => JsonNode.Parse(sr2.ReadToEnd())!.AsArray()
+                    .Select(gr => new
+                    {
+                        Guide = (int)gr!["Guide"]!["Id"]!,
+                        Rating = (decimal)gr!["Rating"]!
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
 
-            path = Path.Combine(DataPath, "Client.xml");
+            path = Path.Combine(DataPath, "Client.json");
             using var sr3 = new StreamReader(path);
-            var Client = new XmlSerializer(typeof(List<Client>)).Deserialize(sr3) as IEnumerable<Client>;
+            var Client = JsonSerializer.Deserialize<IEnumerable<Client>>(sr3.ReadToEnd());
 
             var tq = from ct in ClientTour
                      join gr in GuideRating on ct.Guide equals gr.Guide
@@ -86,42 +94,41 @@ namespace Lab2 {
         public void TaskQuery_2()
         {
             var mode = GetDeserializationMode();
-            var path = Path.Combine(DataPath, "HotelRoute.xml");
+            var path = Path.Combine(DataPath, "HotelRoute.json");
             using var sr1 = new StreamReader(path);
 
             var HotelRoute = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<HotelRoute>))
-                    .Deserialize(sr1) as IEnumerable<HotelRoute>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<HotelRoute>>(sr1.ReadToEnd())!
                     .Select(hr => new
                     {
                         Hotel = hr.Hotel.Id,
-                        Route = hr.Route.Id,
+                        Route = hr.Route.Id
                     }),
-                2 => XDocument
-                    .Load(sr1)
-                    .Descendants("HotelRoute")
+                2 => JsonDocument.Parse(sr1.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(hr => new
                     {
-                        Hotel = (int)hr.Element("Hotel")!.Element("Id")!,
-                        Route = (int)hr.Element("Route")!.Element("Id")!
+                        Hotel = hr.GetProperty("Hotel").GetProperty("Id").GetInt32(),
+                        Route = hr.GetProperty("Route").GetProperty("Id").GetInt32()
                     }),
-                _ => throw new ArgumentException("Unexpected argument value encountered")
+                3 => JsonNode.Parse(sr1.ReadToEnd())!.AsArray()
+                    .Select(hr => new
+                    {
+                        Hotel = (int)hr!["Hotel"]!["Id"]!,
+                        Route = (int)hr!["Route"]!["Id"]!
+                    }),
+                _ => throw new ArgumentException("Unexpected arument value encountered")
             };
 
-            path = Path.Combine(DataPath, "Tour.xml");
+            path = Path.Combine(DataPath, "Tour.json");
             using var sr2 = new StreamReader(path);
 
             var Tour = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<Tour>))
-                    .Deserialize(sr2) as IEnumerable<Tour>)!
-                    .Select(t => t.Route.Id),
-                2 => XDocument
-                    .Load(sr2)
-                    .Descendants("Tour")
-                    .Select(t => (int)t.Element("Route")!.Element("Id")!),
-                _ => throw new ArgumentException("Unexpected argument value encountered")
+                1 => JsonSerializer.Deserialize<IEnumerable<Tour>>(sr2.ReadToEnd())!.Select(t => t.Route.Id),
+                2 => JsonDocument.Parse(sr2.ReadToEnd()).RootElement.EnumerateArray().Select(t => t.GetProperty("Route").GetProperty("Id").GetInt32()),
+                3 => JsonNode.Parse(sr2.ReadToEnd())!.AsArray().Select(t => (int)t!["Route"]!["Id"]!),
+                _ => throw new ArgumentException("Unexpected arument value encountered")
             };
 
             var tq = (from hr in HotelRoute
@@ -141,52 +148,59 @@ namespace Lab2 {
                 { "TotalVisit", "Кількість груп" }
             });
         }
-        public void TaskQuery_3() {
+        public void TaskQuery_3()
+        {
             var mode = GetDeserializationMode();
-            var path = Path.Combine(DataPath, "Tour.xml");
+            var path = Path.Combine(DataPath, "Tour.json");
             using var sr1 = new StreamReader(path);
 
             var Tour = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<Tour>))
-                    .Deserialize(sr1) as IEnumerable<Tour>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<Tour>>(sr1.ReadToEnd())!
                     .Select(t => new
                     {
                         Tour = t.Id,
                         Guide = t.Route.Guide.Id
                     }),
-                2 => XDocument
-                    .Load(sr1)
-                    .Descendants("Tour")
+                2 => JsonDocument.Parse(sr1.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(t => new
                     {
-                        Tour = (int)t.Element("Id")!,
-                        Guide = (int)t.Element("Route")!.Element("Guide")!.Element("Id")!
+                        Tour = t.GetProperty("Id").GetInt32(),
+                        Guide = t.GetProperty("Route").GetProperty("Guide").GetProperty("Id").GetInt32()
                     }),
-                _ => throw new ArgumentException("Unexpected argument value encoutnered")
+                3 => JsonNode.Parse(sr1.ReadToEnd())!.AsArray()
+                    .Select(t => new
+                    {
+                        Tour = (int)t!["Id"]!,
+                        Guide = (int)t!["Route"]!["Guide"]!["Id"]!
+                    }),
+                _ => throw new ArgumentException("Unexpected argument value encountered")
             };
 
-            path = Path.Combine(DataPath, "GuideRating.xml");
+            path = Path.Combine(DataPath, "GuideRating.json");
             using var sr2 = new StreamReader(path);
 
             var GuideRating = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<GuideRating>))
-                    .Deserialize(sr2) as IEnumerable<GuideRating>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<GuideRating>>(sr2.ReadToEnd())!
                     .Select(gr => new
                     {
                         Guide = gr.Guide.Id,
                         gr.Rating
                     }),
-                2 => XDocument
-                    .Load(sr2)
-                    .Descendants("GuideRating")
+                2 => JsonDocument.Parse(sr2.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(gr => new
                     {
-                        Guide = (int)gr.Element("Guide")!.Element("Id")!,
-                        Rating = (decimal)gr.Element("Rating")!
+                        Guide = gr.GetProperty("Guide").GetProperty("Id").GetInt32(),
+                        Rating = gr.GetProperty("Rating").GetDecimal()
                     }),
-                _ => throw new ArgumentException("Unexpected argument value encoutnered")
+                3 => JsonNode.Parse(sr2.ReadToEnd())!.AsArray()
+                    .Select(gr => new
+                    {
+                        Guide = (int)gr!["Guide"]!["Id"]!,
+                        Rating = (decimal)gr!["Rating"]!
+                    }),
+                _ => throw new ArgumentException("Unexpected argument value encountered")
             };
 
             var tq = from t in Tour
@@ -210,75 +224,86 @@ namespace Lab2 {
                 { "AverageRating", "Оцінка гіду" }
             });
         }
-        public void TaskQuery_4() {
+        public void TaskQuery_4()
+        {
             var mode = GetDeserializationMode();
-            var path = Path.Combine(DataPath, "HotelRating.xml");
+            var path = Path.Combine(DataPath, "HotelRating.json");
             using var sr1 = new StreamReader(path);
 
             var HotelRating = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<HotelRating>))
-                    .Deserialize(sr1) as IEnumerable<HotelRating>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<HotelRating>>(sr1.ReadToEnd())!
                     .Select(hr => new
                     {
                         Hotel = hr.Hotel.Id,
                         hr.Rating
                     }),
-                2 => XDocument
-                    .Load(sr1)
-                    .Descendants("HotelRating")
+                2 => JsonDocument.Parse(sr1.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(hr => new
                     {
-                        Hotel = (int)hr.Element("Hotel")!.Element("Id")!,
-                        Rating = (decimal)hr.Element("Rating")!
+                        Hotel = hr.GetProperty("Hotel").GetProperty("Id").GetInt32(),
+                        Rating = hr.GetProperty("Rating").GetDecimal()
+                    }),
+                3 => JsonNode.Parse(sr1.ReadToEnd())!.AsArray()
+                    .Select(hr => new
+                    {
+                        Hotel = (int)hr!["Hotel"]!["Id"]!,
+                        Rating = (decimal)hr!["Rating"]!
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
 
-            path = Path.Combine(DataPath, "HotelRoute.xml");
+            path = Path.Combine(DataPath, "HotelRoute.json");
             using var sr2 = new StreamReader(path);
 
             var HotelRoute = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<HotelRoute>))
-                    .Deserialize(sr2) as IEnumerable<HotelRoute>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<HotelRoute>>(sr2.ReadToEnd())!
                     .Select(hr => new
                     {
                         Hotel = hr.Hotel.Id,
                         Route = hr.Route.Id,
                         hr.Route.Duration
                     }),
-                2 => XDocument
-                    .Load(sr2)
-                    .Descendants("HotelRoute")
+                2 => JsonDocument.Parse(sr2.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(hr => new
                     {
-                        Hotel = (int)hr.Element("Hotel")!.Element("Id")!,
-                        Route = (int)hr.Element("Route")!.Element("Id")!,
-                        Duration = (int)hr.Element("Route")!.Element("Duration")!
+                        Hotel = hr.GetProperty("Hotel").GetProperty("Id").GetInt32(),
+                        Route = hr.GetProperty("Route").GetProperty("Id").GetInt32(),
+                        Duration = hr.GetProperty("Route").GetProperty("Duration").GetInt32()
+                    }),
+                3 => JsonNode.Parse(sr2.ReadToEnd())!.AsArray()
+                    .Select(hr => new
+                    {
+                        Hotel = (int)hr!["Hotel"]!["Id"]!,
+                        Route = (int)hr!["Route"]!["Id"]!,
+                        Duration = (int)hr!["Route"]!["Duration"]!
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
 
-            path = Path.Combine(DataPath, "ClientTour.xml");
+            path = Path.Combine(DataPath, "ClientTour.json");
             using var sr3 = new StreamReader(path);
 
             var ClientTour = mode switch
             {
-                1 => (new XmlSerializer(typeof(List<ClientTour>))
-                    .Deserialize(sr3) as IEnumerable<ClientTour>)!
+                1 => JsonSerializer.Deserialize<IEnumerable<ClientTour>>(sr3.ReadToEnd())!
                     .Select(ct => new
                     {
                         Client = ct.Client.Id,
                         Route = ct.Tour.Route.Id
                     }),
-                2 => XDocument
-                    .Load(sr3)
-                    .Descendants("ClientTour")
+                2 => JsonDocument.Parse(sr3.ReadToEnd()).RootElement.EnumerateArray()
                     .Select(ct => new
                     {
-                        Client = (int)ct.Element("Client")!.Element("Id")!,
-                        Route = (int)ct.Element("Tour")!.Element("Route")!.Element("Id")!
+                        Client = ct.GetProperty("Client").GetProperty("Id").GetInt32(),
+                        Route = ct.GetProperty("Tour").GetProperty("Route").GetProperty("Id").GetInt32()
+                    }),
+                3 => JsonNode.Parse(sr3.ReadToEnd())!.AsArray()
+                    .Select(ct => new
+                    {
+                        Client = (int)ct!["Client"]!["Id"]!,
+                        Route = (int)ct!["Tour"]!["Route"]!["Id"]!
                     }),
                 _ => throw new ArgumentException("Unexpected argument value encountered")
             };
