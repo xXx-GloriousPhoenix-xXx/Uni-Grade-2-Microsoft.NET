@@ -49,13 +49,15 @@ namespace Lab1
 
             var method_dictionary = new Dictionary<string, List<int>>()
             {
-                { "Self", new List<int>() { 1, 7} },
-                { "Task", new List<int>() { 1, 4} }
+                { "self", new List<int>() { 1, 7} },
+                { "task", new List<int>() { 1, 4} }
             };
+
+            //method_type = method_type.ToLower();
 
             if (method_type is null || !method_dictionary.TryGetValue(method_type!, out List<int>? dictionary_value))
             {
-                if (method_type is not null && method_type == "Quit")
+                if (method_type == "quit")
                 {
                     return true;
                 }
@@ -73,7 +75,8 @@ namespace Lab1
                 return false;
             }
 
-            var method_name = $"{method_type}Query_{value}";
+            var method_name_init = $"{method_type}Query_{value}";
+            var method_name = char.ToUpper(method_name_init.First()) + method_name_init.Substring(1);
             var method = GetType().GetMethod(method_name);
             if (method is null)
             {
